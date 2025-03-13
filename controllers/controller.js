@@ -22,20 +22,36 @@ function index(req, res) {
 
 // show
 function show(req, res) {
-    const id = parseInt(req.params.id)
-    const post = arrayPosts.find(post => post.id === id);
+    // const id = parseInt(req.params.id)
+    // const post = arrayPosts.find(post => post.id === id);
 
-    if (!post) {
+    // if (!post) {
 
-        res.status(404);
+    //     res.status(404);
 
-        return res.json({
-            status: 404,
-            error: "Not Found",
-            message: "Post non trovato"
+    //     return res.json({
+    //         status: 404,
+    //         error: "Not Found",
+    //         message: "Post non trovato"
+    //     })
+    // }
+    // res.json(post);
+
+    const { id } = req.params
+
+    const sql = 'SELECT * FROM posts WHERE id = ?';
+
+    connection.query(sql, [id], (err, results) => {
+        if (err) return res.status(500).json({
+            error: 'Database error'
         })
-    }
-    res.json(post);
+        if (results.length === 0) return res.status(404).json({
+            status: 404,
+            error: 'Not Found',
+            message: 'Pizza non trovata'
+        })
+        res.json(results[0])
+    })
 }
 
 // store
@@ -87,24 +103,37 @@ function patch(req, res) {
 
 
 function destroy(req, res) {
-    const id = parseInt(req.params.id);
-    const post = arrayPosts.find(element => element.id === id);
+    // const id = parseInt(req.params.id);
+    // const post = arrayPosts.find(element => element.id === id);
 
-    if (!post) {
-        res.status(404);
+    // if (!post) {
+    //     res.status(404);
 
-        return res.json({
-            status: 404,
-            error: "Not Found",
-            message: "Post non trovato"
+    //     return res.json({
+    //         status: 404,
+    //         error: "Not Found",
+    //         message: "Post non trovato"
+    //     })
+
+    const { id } = req.params;
+
+    const sql = 'DELETE FROM posts WHERE id = ?'
+
+    connection.query(sql, [id], (err) => {
+        if (err) return res.status(500).json({
+            error: 'Database query error'
         })
-    }
+        res.sendStatus(204)
+    })
 
+    // arrayPosts.splice(arrayPosts.indexOf(post))
 
-    arrayPosts.splice(arrayPosts.indexOf(post))
-
-    res.sendStatus(204)
+    // res.sendStatus(204)
 }
+
+
+
+
 
 
 module.exports = { index, show, update, patch, destroy, store }
